@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+
+from jose import jwt
 from sqlalchemy.orm import Session
 from . import models, schemas
 from passlib.context import CryptContext
@@ -21,14 +24,33 @@ def get_user_by_email(db: Session, email: str):
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+SECRET_KEY = "a_secret_key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-def create_user(db: Session, user: schemas.UserCreate):
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+def create_user(db: Session, user: schemas.UserCreate, secret_key: str, algorithm: str):
     hashed_password = pwd_context.hash(user.password)
     db_user = models.User(email=user.email, hashed_password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    return db_user
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": db_user.email}, expires_delta=access_token_expires,
+    )
+    return db_user, access_token
 
 
 def search_videos(db: Session, query: str, skip: int = 0, limit: int = 10):
@@ -55,3 +77,12 @@ def create_like(db: Session, like: schemas.LikeCreate):
     db.commit()
     db.refresh(db_like)
     return db_like
+
+
+def authenticate_user(db: Session, email: str, password: str):
+    user = get_user_by_email(db, email)
+    if not user:
+        return False
+    if not pwd_context.verify(password, user.hashed_password):
+        return False
+    return user

@@ -46,11 +46,10 @@ const onPause = () => {
 
 <style scoped>
 .video-container {
-  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 60px);
   overflow: hidden;
   display: flex;
   justify-content: center;
