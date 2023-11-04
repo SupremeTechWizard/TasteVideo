@@ -68,7 +68,7 @@ const hideRegisterModal = () => {
 </script>
 
 <template>
-  <div class="app-container">
+  <div class="flex flex-col h-screen w-screen">
     <nav class="flex justify-end p-2.5 bg-gray-900 text-white">
       <button
           v-if="!userStore.state.isLoggedIn"
@@ -92,7 +92,7 @@ const hideRegisterModal = () => {
         注销
       </button>
     </nav>
-    <VideoPlayer :videoSrc="currentVideo.src" v-if="currentVideo"/>
+    <VideoPlayer class="overflow-hidden" :videoSrc="currentVideo.src" v-if="currentVideo"/>
     <LoginForm v-if="isLoginModalVisible" @close="hideLoginModal" @login-success="handleLoginSuccess"/>
     <RegisterForm v-if="isRegisterModalVisible" @close="hideRegisterModal"/> <!-- 注册表单 -->
   </div>
