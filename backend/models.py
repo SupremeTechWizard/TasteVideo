@@ -15,8 +15,13 @@ class Video(Base):
     __tablename__ = 'videos'
 
     id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    description = Column(String, index=False)
     src = Column(String, index=True)
     category = Column(String, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    user = relationship("User")
 
 
 class Comment(Base):

@@ -4,6 +4,7 @@ import {useUserStore} from './stores/userStore';
 import LoginForm from './components/LoginForm.vue';
 import RegisterForm from './components/RegisterForm.vue';
 import VideoPlayer from './components/VideoPlayer.vue';
+import VideoUploadForm from "./components/VideoUploadForm.vue";
 
 const videos = ref([]);
 const currentVideo = ref(null);
@@ -65,11 +66,25 @@ const showRegisterModal = () => {
 const hideRegisterModal = () => {
   isRegisterModalVisible.value = false;
 };
+
+const isUploadModalVisible = ref(false);
+
+const showUploadModal = () => {
+  isUploadModalVisible.value = true;
+};
+
+const hideUploadModal = () => {
+  isUploadModalVisible.value = false;
+};
 </script>
 
 <template>
   <div class="flex flex-col h-screen w-screen">
     <nav class="flex justify-end p-2.5 bg-gray-900 text-white">
+      <button v-if="userStore.state.isLoggedIn" @click="showUploadModal"
+              class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+        上传视频
+      </button>
       <button
           v-if="!userStore.state.isLoggedIn"
           @click.stop="showLoginModal"
@@ -95,5 +110,6 @@ const hideRegisterModal = () => {
     <VideoPlayer class="overflow-hidden" :videoSrc="currentVideo.src" v-if="currentVideo"/>
     <LoginForm v-if="isLoginModalVisible" @close="hideLoginModal" @login-success="handleLoginSuccess"/>
     <RegisterForm v-if="isRegisterModalVisible" @close="hideRegisterModal"/> <!-- 注册表单 -->
+    <VideoUploadForm v-if="isUploadModalVisible" @close="hideUploadModal"/>
   </div>
 </template>

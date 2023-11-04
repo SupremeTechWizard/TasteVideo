@@ -7,7 +7,8 @@ class VideoBase(BaseModel):
 
 
 class VideoCreate(VideoBase):
-    pass
+    title: str
+    description: str
 
 
 class Video(VideoBase):

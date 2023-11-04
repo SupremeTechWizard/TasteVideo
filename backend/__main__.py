@@ -1,5 +1,6 @@
+import os
 from datetime import datetime, timedelta
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from starlette import status
@@ -133,7 +134,33 @@ def verify_token(token: str = Depends(oauth2_scheme), db: Session = Depends(get_
     return {"email": user.email, "id": user.id}
 
 
+@app.post("/UploadVideo")
+async def upload_video(file: UploadFile = File(...), db: Session = Depends(get_db),
+                       token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    user = crud.get_user_by_email(db, email=email)
+    if user is None:
+        raise credentials_exception
+
+    file_location = await crud.save_video(file, user.id)
+
+    video_data = schemas.VideoCreate(src=file_location, category="默认分类", title="上传的视频", description="视频描述")
+    crud.create_video(db=db, video=video_data, user_id=user.id)
+    return {"info": "Video uploaded successfully", "filename": file.filename}
+
+
 if __name__ == "__main__":
     import uvicorn
-
+    os.makedirs("./static/videos", exist_ok=True)
     uvicorn.run(app, host="0.0.0.0", port=8000)

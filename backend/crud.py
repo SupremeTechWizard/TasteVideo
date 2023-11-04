@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from fastapi import UploadFile
 from jose import jwt
 from sqlalchemy.orm import Session
 from . import models, schemas
@@ -10,8 +11,8 @@ def get_videos(db: Session, skip: int = 0, limit: int = 10):
     return db.query(models.Video).offset(skip).limit(limit).all()
 
 
-def create_video(db: Session, video: schemas.VideoCreate):
-    db_video = models.Video(**video.dict())
+def create_video(db: Session, video: schemas.VideoCreate, user_id: int):
+    db_video = models.Video(**video.dict(), user_id=user_id)
     db.add(db_video)
     db.commit()
     db.refresh(db_video)
@@ -86,3 +87,11 @@ def authenticate_user(db: Session, email: str, password: str):
     if not pwd_context.verify(password, user.hashed_password):
         return False
     return user
+
+
+async def save_video(file: UploadFile, user_id: int) -> str:
+    file_location = f"static/videos/{user_id}_{file.filename}"
+    with open(file_location, "wb+") as file_object:
+        content = await file.read()
+        file_object.write(content)
+    return file_location
