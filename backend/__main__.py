@@ -160,6 +160,11 @@ async def upload_video(file: UploadFile = File(...), db: Session = Depends(get_d
     return {"info": "Video uploaded successfully", "filename": file.filename}
 
 
+@app.get("/GetVideosByCategory")
+def get_videos_by_category(category: str, db: Session = Depends(get_db)):
+    return crud.get_videos_by_category(db, category=category)
+
+
 if __name__ == "__main__":
     import uvicorn
     os.makedirs("./static/videos", exist_ok=True)

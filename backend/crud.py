@@ -95,3 +95,13 @@ async def save_video(file: UploadFile, user_id: int) -> str:
         content = await file.read()
         file_object.write(content)
     return file_location
+
+
+def get_videos_by_category(db: Session, category: str, skip: int = 0, limit: int = 10):
+    return (
+        db.query(models.Video)
+        .filter(models.Video.category == category)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
