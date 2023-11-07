@@ -2,7 +2,7 @@
 
 欢迎来到TasteVideo，这是一个使用Vue3、Tailwind CSS和Python FastAPI构建的网页短视频应用。我们的应用提供流畅的视频播放体验，并且拥有丰富的视频内容分类，让你随时发现和享受新鲜有趣的短视频！
 
-![DEMO](docs/DEMO.mp4)
+[DEMO](https://github.com/SupremeTechWizard/TasteVideo/raw/master/docs/DEMO.mp4)
 
 ## 功能亮点
 
